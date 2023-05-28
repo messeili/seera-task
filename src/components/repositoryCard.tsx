@@ -14,11 +14,11 @@ const RepositoryCard: React.FC<RepositoryCardProps> = ({ name, language, descrip
         <Card className="shadow-md rounded-lg">
             <CardContent>
                 <DriveFolderUploadIcon fontSize="large" />
-                <Typography className="truncate" variant="h5">{name}</Typography>
-                <Typography variant="body2">Language: {language}</Typography>
-                <Typography className="line-clamp-3" variant="body2">{description}</Typography>
-                <Typography variant="body2">Forks: {forks_count}</Typography>
-                <div className="mt-3">
+                <Typography data-testid="repo-name" className="truncate" variant="h5">{name}</Typography>
+                <Typography data-testid="repo-lang" variant="body2">Language: {language}</Typography>
+                <Typography data-testid="repo-dec" className="line-clamp-3" variant="body2">{description}</Typography>
+                <Typography data-testid="repo-forks-count" variant="body2">Forks: {forks_count}</Typography>
+                <div data-testid="repo-topics" className="mt-3">
                     {topics.slice(0,4).map((topic, index) => (
                         <Chip className="m-1" key={index} label={topic} />
                     ))}
