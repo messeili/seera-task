@@ -3,14 +3,15 @@ import axiosInstance from "@/utils/axios.config";
 import {ApiConstants} from "@/constants/api.constants";
 import {makeAutoObservable, observable, runInAction} from "mobx";
 import {Response} from "@/models/response.model";
+import {ISearchLabel} from "@/store/search.interface";
 
-class UsersSore {
+class UsersSore implements ISearchLabel<UserModel.GithubUser[]> {
 
-    usersList: UserModel.GithubUser[] = [];
+    data: UserModel.GithubUser[] = [];
     totalItems = 0;
     loading = false;
     error = false;
-    fetchedItemsCount = 0;
+    isAtEnd = false
     page = 0;
     cache = observable.map();
 
@@ -19,37 +20,42 @@ class UsersSore {
     }
 
 
-    getUsers(query: string, page = this.page) {
+    search(searchTerm: string, page = this.page) {
         this.error = false;
         this.loading = true;
-        if(!query) return Promise.resolve();
-        return axiosInstance.get<Response<Array<UserModel.GithubUser>>>(ApiConstants.users, {params: {q: query, page}})
-            .then(response => response.data)
-            .then(response => {
-                runInAction(() => {
-                    this.usersList = [...this.usersList, ...response.items]
-                    this.totalItems = response.total_count;
-                    this.fetchedItemsCount += response.items.length;
-                    this.page = this.page + 1;
-                })
+        if(this.isAtEnd) return
+        if (!searchTerm) {
+            runInAction(() => {
+                this.data = [];
             })
-            .catch(() => {
-                runInAction(() => {
-                    this.error = true;
-                    this.usersList = [];
+        } else {
+            axiosInstance.get<Response<Array<UserModel.GithubUser>>>(ApiConstants.users, {params: {q: searchTerm, page}})
+                .then(response => response.data)
+                .then(response => {
+                    runInAction(() => {
+                        this.data = [...this.data, ...response.items]
+                        this.totalItems = response.total_count;
+                        this.isAtEnd = response.items.length < 30;
+                        this.page = this.page + 1;
+                    })
                 })
-            })
-            .finally(() => runInAction(() => this.loading = false))
+                .catch(() => {
+                    runInAction(() => {
+                        this.error = true;
+                    })
+                })
+                .finally(() => runInAction(() => this.loading = false))
+        }
     }
 
 
     reset() {
-        this.loading = false;
-        this.usersList = [];
+        this.loading = true;
         this.totalItems = 0;
-        this.fetchedItemsCount = 0;
+        this.isAtEnd = false;
         this.error = false;
         this.page = 0;
+        this.data = []
     }
 }
 
