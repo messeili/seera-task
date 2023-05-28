@@ -14,13 +14,13 @@ const GithubUserCard: React.FC<GithubUserCardProps> = ({name, avatar, url}) => {
                 <div className="flex gap-3 mb-10 items-center">
                     <Avatar src={avatar} alt={name} sx={{width: 60, height: 60}}/>
                     <Tooltip className="cursor-pointer" title={name} placement="top-start">
-                        <Typography className="truncate" variant="h5">{name}</Typography>
+                        <Typography data-testid="user-name" className="truncate" variant="h5">{name}</Typography>
                     </Tooltip>
                 </div>
                 <Typography variant="body2" color="textSecondary" component="p">
                     Visit the GitHub profile:
                 </Typography>
-                <Button className="mt-3" variant="contained" color="primary" href={url} target="_blank" rel="noopener noreferrer">
+                <Button data-testid="profile-button" className="mt-3" variant="contained" color="primary" href={url} target="_blank" rel="noopener noreferrer">
                     Go to Profile
                 </Button>
             </CardContent>
