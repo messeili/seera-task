@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import {customDebounce} from "@/utils/debounce";
 
-const useInfiniteScroll = (onScrollEnd: Function) => {
+const useInfiniteScroll = (onScrollEnd: () => void) => {
     useEffect(() => {
         const handleScroll = customDebounce(() => {
             const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
