@@ -20,7 +20,7 @@ const RepositoryCard: React.FC<RepositoryCardProps> = ({ name, language, descrip
                 <Typography data-testid="repo-lang" variant="body2">Language: {language}</Typography>
                 <Typography data-testid="repo-dec" className="line-clamp-3" variant="body2">{description}</Typography>
                 <Typography data-testid="repo-forks-count" variant="body2">Forks: {forks_count}</Typography>
-                <div data-testid="repo-topics" className="mt-3">
+                <div data-testid="repo-fileTypes" className="mt-3">
                     {fileTypes && fileTypes.map((file, index) => (
                         <Chip className="m-1" key={index} label={file} />
                     ))}
