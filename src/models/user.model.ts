@@ -22,11 +22,13 @@ export namespace UserModel {
     }
 
     export class GithubUser implements Pick<IGithubUser, 'avatar_url' | 'login' | 'html_url'> {
+        id: number;
         avatar_url: string;
         login: string;
         html_url: string;
 
         constructor(user: IGithubUser) {
+            this.id = user.id;
             this.avatar_url = user.avatar_url;
             this.login = user.login;
             this.html_url = user.html_url;

@@ -214,13 +214,15 @@ export namespace RepositoryModel {
         url: string;
     }
 
-    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count'>{
+    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count' | 'id'>{
+        id: number;
         name: string;
         description: string;
         language: string;
         forks_count: number;
         git_url: string;
         constructor(repo: IRepository) {
+            this.id = repo.id;
             this.name = repo.name;
             this.description = repo.description;
             this.language = repo.language;
