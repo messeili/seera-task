@@ -10,10 +10,18 @@ This app uses the following technologies:
 -  **ESLint** — Pluggable JavaScript linter
 -  **Prettier** - Opinionated Code Formatter
 -  **Mobx** - State management
+-  **Material ui** - React components for faster and easier web development
+-  **localForge** - IndexedDB wrapper with a simple API for caching data
 
 ## 🚀 Getting started
 To the run the project, you need to have [Node](https://nodejs.org/en/) and npm or [Yarn](https://yarnpkg.com/) installed.
-after that, run the following commands:
+Then you need to create a `.env.local` file in the root of the project and add the following environment variables:
+```agsl
+NEXT_PUBLIC_GITHUB_API_URL=https://api.github.com  # GitHub API URL
+NEXT_PUBLIC_GITHUB_API_KEY=your_client_id          # GitHub Apikey for authentication
+```
+To install the dependencies and run the project, clone the project and run the following commands:
+
 ```
 npm install
 npm run dev
