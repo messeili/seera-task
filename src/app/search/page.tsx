@@ -87,8 +87,8 @@ const SearchForm: React.FC = observer(() => {
             {!isInitialSearchState.current &&
                 <>
                     {searchType === SearchTypeConstants.users ?
-                        <UsersResults>{getStore().loading && <SkeletonResults size={30}/>}</UsersResults> :
-                        <RepoResults>{getStore().loading && <SkeletonResults size={30}/>}</RepoResults>}
+                        <UsersResults><SkeletonResults size={30}/></UsersResults> :
+                        <RepoResults><SkeletonResults size={30}/></RepoResults>}
                     {getStore().data.length === 0 && !getStore().loading && !getStore().error &&
                         <div className="flex items-center justify-center mt-20">
                             <h2 className="text-3xl font-bold text-white">No results found</h2>
