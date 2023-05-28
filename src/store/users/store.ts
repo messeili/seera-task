@@ -23,13 +23,18 @@ class UsersSore implements ISearchLabel<UserModel.GithubUser[]> {
     search(searchTerm: string, page = this.page) {
         this.error = false;
         this.loading = true;
-        if(this.isAtEnd) return
+        if (this.isAtEnd) return
         if (!searchTerm) {
             runInAction(() => {
-                this.data = [];
+                this.reset(false);
             })
         } else {
-            axiosInstance.get<Response<Array<UserModel.GithubUser>>>(ApiConstants.users, {params: {q: searchTerm, page}})
+            axiosInstance.get<Response<Array<UserModel.GithubUser>>>(ApiConstants.users, {
+                params: {
+                    q: searchTerm,
+                    page
+                }
+            })
                 .then(response => response.data)
                 .then(response => {
                     runInAction(() => {
@@ -49,8 +54,8 @@ class UsersSore implements ISearchLabel<UserModel.GithubUser[]> {
     }
 
 
-    reset() {
-        this.loading = true;
+    reset(loading = true) {
+        this.loading = loading;
         this.totalItems = 0;
         this.isAtEnd = false;
         this.error = false;
