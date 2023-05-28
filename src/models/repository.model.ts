@@ -214,13 +214,15 @@ export namespace RepositoryModel {
         url: string;
     }
 
-    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count' | 'id'>{
+    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count' | 'id'> {
         id: number;
         name: string;
         description: string;
         language: string;
         forks_count: number;
         git_url: string;
+        owner: Pick<RepoOwner, | 'login'>;
+
         constructor(repo: IRepository) {
             this.id = repo.id;
             this.name = repo.name;
@@ -228,6 +230,7 @@ export namespace RepositoryModel {
             this.language = repo.language;
             this.forks_count = repo.forks_count;
             this.git_url = repo.git_url;
+            this.owner = {login: repo.owner.login};
         }
     }
 
