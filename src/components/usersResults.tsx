@@ -13,7 +13,7 @@ const usersResults: React.FC<UsersResultsProps> = observer(({children}: { childr
         <>
             <div
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-3 md:gap-4 lg:gap-8">
-                {!userStore.error && userStore.data.map((user: UserModel.GithubUser, index) =>
+                {!userStore.error && userStore.data.map((user: UserModel.IGithubUser, index) =>
                     <GithubUserCard
                         key={`${user.id}-${index}`}
                         name={user.login}

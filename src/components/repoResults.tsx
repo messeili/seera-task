@@ -14,13 +14,12 @@ const RepoResults: React.FC<RepoResultsProps> = observer(({children}: { children
         <>
             <div
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-3 md:gap-4 lg:gap-8">
-                {!repositoryStore.error && repositoryStore.data.map((repo: RepositoryModel.Repository, index) =>
+                {!repositoryStore.error && repositoryStore.data.map((repo: RepositoryModel.IRepository, index) =>
                     <RepositoryCard
                         key={`${repo.id}-${index}`}
                         name={repo.name}
                         language={repo.language}
                         forks_count={repo.forks_count}
-                        topics={repo.topics}
                         forks={repositoryStore.forksMap.get(repo.git_url)}
                         fileTypes={repositoryStore.fileTypeMap.get(repo.git_url)}
                         description={repo.description}/>)}

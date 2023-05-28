@@ -6,9 +6,9 @@ import {ApiConstants} from "@/constants/api.constants";
 import {ISearchLabel} from "@/store/search.interface";
 import * as localForage from "localforage";
 
-class RepositoryStore implements ISearchLabel<RepositoryModel.Repository[]> {
+class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
 
-    data: RepositoryModel.Repository[] = [];
+    data: RepositoryModel.IRepository[] = [];
     totalItems = 0;
     isAtEnd = false;
     loading = false;
@@ -31,66 +31,63 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.Repository[]> {
         makeAutoObservable(this)
     }
 
-
     async search(searchTerm: string, page = this.page) {
         this.error = false;
         this.loading = true;
         if (this.isAtEnd) return
         if (!searchTerm) {
-            runInAction(() => {
-                this.reset(false);
-            })
-        } else {
-            const cacheKey = `search:${searchTerm}:page:${page}`;
-            const cachedReps = await this.cache.getItem<string>(cacheKey);
-            if (cachedReps) {
-                runInAction(() => {
-                    const data: RepositoryModel.Repository[] = JSON.parse(cachedReps);
-                    this.data = [...this.data, ...data]
-                    this.loading = false;
-                    this.page = this.page + 1;
-                    data.forEach((repo) => {
-                        this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
-                        this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
-                    });
-                });
-                return;
-            }
-            axiosInstance.get<Response<Array<RepositoryModel.Repository>>>(ApiConstants.repositories, {params: {
-                q: searchTerm,
-                    page
-                }
-            })
-                .then(response => response.data)
-                .then(response => {
-                    runInAction(() => {
-                        this.data = [...this.data, ...response.items]
-                        this.totalItems = response.total_count;
-                        this.isAtEnd = response.items.length > 30;
-                        this.page = this.page + 1;
-                    });
-                    // Call getRepositoryForks for each repository
-                    response.items.forEach((repo, index) => {
-                        this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
-                        this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
-                    });
-                    this.cache.setItem<string>(cacheKey, JSON.stringify(response.items));
-                })
-
-                .catch(() => {
-                    this.error = true;
-                    this.data = [];
-                })
-                .finally(() => runInAction(() => this.loading = false))
+            runInAction(() => this.reset(false))
+            return
         }
+        const cacheKey = `search:${searchTerm}:page:${page}`;
+        const cachedReps = await this.cache.getItem<string>(cacheKey);
+        if (cachedReps) {
+            runInAction(() => {
+                const data: RepositoryModel.IRepository[] = JSON.parse(cachedReps);
+                this.data = [...this.data, ...data]
+                this.loading = false;
+                this.page = this.page + 1;
+                data.forEach((repo) => {
+                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
+                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
+                });
+            });
+            return;
+        }
+        axiosInstance.get<Response<Array<RepositoryModel.IRepository>>>(ApiConstants.repositories, {
+            params: {
+                q: searchTerm,
+                page
+            }
+        })
+            .then(response => response.data)
+            .then(({items, total_count}) => {
+                // create new repository models to minimize the data we store in cache
+                const repositories = items.map((item) =>
+                    new RepositoryModel.Repository(item)) as RepositoryModel.IRepository[];
+                runInAction(() => {
+                    this.data = [...this.data, ...repositories]
+                    this.totalItems = total_count;
+                    this.isAtEnd = items.length > 30;
+                    this.page = this.page + 1;
+                    console.log('this.data', this.data)
+                });
+                // get forks and file types for each repository
+                items.forEach((repo) => {
+                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
+                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
+                });
+                this.cache.setItem<string>(cacheKey, JSON.stringify(repositories));
+            })
+
+            .catch(() => runInAction(() => this.error = true))
+            .finally(() => runInAction(() => this.loading = false));
     }
 
     async getRepositoryForks(owner: string, repoName: string, git_url: string) {
         const cachedData = await this.forksCache.getItem<string>(`${git_url}`);
         if (cachedData) {
-            runInAction(() => {
-                this.forksMap.set(`${git_url}`, JSON.parse(cachedData));
-            });
+            runInAction(() => this.forksMap.set(`${git_url}`, JSON.parse(cachedData)));
             return;
         }
         axiosInstance.get<Array<RepositoryModel.Fork>>(ApiConstants.forks(owner, repoName))
@@ -102,45 +99,36 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.Repository[]> {
                     this.forksMap.set(`${git_url}`, forks);
                 });
             })
-            .catch(() => {
-                runInAction(() => {
-                    this.error = true;
-                });
-            })
+            .catch(() => runInAction(() => this.error = true))
             .finally(() => runInAction(() => this.loading = false));
     }
 
-    async getRepositoryFileType(owner: string, repoName: string,  git_url: string) {
+    async getRepositoryFileType(owner: string, repoName: string, git_url: string) {
         const cachedData = await this.fileTypeCache.getItem<string>(`${git_url}`);
         if (cachedData) {
-            runInAction(() => {
-                this.fileTypeMap.set(`${git_url}`, JSON.parse(cachedData));
-            });
+            runInAction(() => this.fileTypeMap.set(`${git_url}`, JSON.parse(cachedData)));
             return;
         }
-        axiosInstance.get(ApiConstants.fileType(owner, repoName))
+        axiosInstance.get<Array<RepositoryModel.RepoFile>>(ApiConstants.fileType(owner, repoName))
             .then(response => response.data)
             .then(response => response.filter(file => file.type === 'file'))
             .then(files => files.map(file => this.getFileType(file.name)))
+            .then(files => [...new Set(files.filter(Boolean))])
             .then(files => {
                 runInAction(() => {
                     this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify(files));
                     this.fileTypeMap.set(`${git_url}`, files);
                 });
             })
-            .catch(() => {
-                runInAction(() => {
-                    this.error = true;
-                });
-            })
+            .catch(() => runInAction(() => this.error = true))
             .finally(() => runInAction(() => this.loading = false));
     }
 
 
     getFileType(filename: string) {
         const parts = filename.split('.');
-        if (parts.length > 1) {
-            return parts[parts.length - 1];
+        if (parts.length > 1 && parts[0] !== '' && parts.at(-1) !== '') {
+            return parts.at(-1);
         }
         return '';
     }

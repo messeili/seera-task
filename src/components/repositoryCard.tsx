@@ -8,11 +8,10 @@ interface RepositoryCardProps {
     language: string;
     description: string;
     forks_count: number;
-    topics: string[];
     forks: Pick<RepositoryModel.RepoOwner, 'login' | 'avatar_url'>[];
     fileTypes: string[];
 }
-const RepositoryCard: React.FC<RepositoryCardProps> = ({ name, language, description, forks_count, topics, forks, fileTypes }) => {
+const RepositoryCard: React.FC<RepositoryCardProps> = ({ name, language, description, forks_count, forks, fileTypes }) => {
     return (
         <Card className="shadow-md rounded-lg">
             <CardContent>

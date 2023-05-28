@@ -1,5 +1,5 @@
 export namespace UserModel {
-    export interface GithubUser {
+    export interface IGithubUser {
         avatar_url: string;
         events_url: string;
         followers_url: string;
@@ -19,5 +19,17 @@ export namespace UserModel {
         subscriptions_url: string;
         type: string;
         url: string;
+    }
+
+    export class GithubUser implements Pick<IGithubUser, 'avatar_url' | 'login' | 'html_url'> {
+        avatar_url: string;
+        login: string;
+        html_url: string;
+
+        constructor(user: IGithubUser) {
+            this.avatar_url = user.avatar_url;
+            this.login = user.login;
+            this.html_url = user.html_url;
+        }
     }
 }

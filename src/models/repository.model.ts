@@ -1,5 +1,5 @@
 export namespace RepositoryModel {
-    export interface Repository {
+    export interface IRepository {
         allow_forking: boolean;
         archive_url: string;
         archived: boolean;
@@ -200,6 +200,33 @@ export namespace RepositoryModel {
         push: boolean;
         triage: boolean;
         pull: boolean;
+    }
+
+    export interface RepoFile {
+        download_url: string;
+        git_url: string
+        html_url: string;
+        name: string;
+        path: string;
+        sha: string;
+        size: number;
+        type: string;
+        url: string;
+    }
+
+    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count'>{
+        name: string;
+        description: string;
+        language: string;
+        forks_count: number;
+        git_url: string;
+        constructor(repo: IRepository) {
+            this.name = repo.name;
+            this.description = repo.description;
+            this.language = repo.language;
+            this.forks_count = repo.forks_count;
+            this.git_url = repo.git_url;
+        }
     }
 
 }
