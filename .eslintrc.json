@@ -6,9 +6,6 @@
     "plugin:@typescript-eslint/recommended",
     "next/core-web-vitals"
   ],
-  "rules": {
-    "@typescript-eslint/dot-notation": "error"
-  },
   "parserOptions": {
     "project": ["./tsconfig.json"]
   },
@@ -30,7 +27,7 @@
         "@typescript-eslint/naming-convention": "off",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/dot-notation": "error",
+        "@typescript-eslint/dot-notation": "off",
         "@typescript-eslint/member-ordering": "off",
         "@typescript-eslint/explicit-function-return-type": "off"
       }
