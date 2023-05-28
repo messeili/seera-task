@@ -106,6 +106,7 @@ const SearchForm: React.FC = observer(() => {
                 </Grid>
             </Grid>
         </Container>
+
     );
 });
 
