@@ -52,6 +52,7 @@ const SearchForm: React.FC = observer(() => {
 
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
         isInitialSearchState.current = false;
         getStore().reset();
         setSearchQuery(event.target.value);
@@ -67,7 +68,7 @@ const SearchForm: React.FC = observer(() => {
                     </div>
                 </Grid>
                 <Grid item xs={12}>
-                    <form className="flex flex-col items-center justify-center gap-10">
+                    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col items-center justify-center gap-10">
                         <ToggleButtonGroup
                             color="primary"
                             value={searchType}
@@ -81,6 +82,7 @@ const SearchForm: React.FC = observer(() => {
                         <TextField
                             value={searchQuery}
                             color="primary"
+                            name="search"
                             focused
                             variant="outlined"
                             className="w-full"
