@@ -13,7 +13,7 @@ const ErrorComponent: React.FC<{ message: string }> = ({message}) => {
         >
             <ReportGmailerrorredIcon className="text-9xl" fontSize="large" color="error"/>
             <Typography className="font-bold mt-5" variant="h3" color="error">
-                {message}
+                {message || 'Something went wrong'}
             </Typography>
         </Box>
     );

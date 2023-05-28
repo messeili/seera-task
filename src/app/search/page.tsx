@@ -101,7 +101,7 @@ const SearchForm: React.FC = observer(() => {
                                     <h2 className="text-3xl font-bold text-white">No results found</h2>
                                 </div>
                             }
-                            {getStore().error && <ErrorComponent message="Error in fetching data"/>}
+                            {getStore().error && <ErrorComponent message={getStore().error}/>}
                         </>}
                 </Grid>
             </Grid>

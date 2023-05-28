@@ -5,6 +5,7 @@ import {RepositoryModel} from "@/models/repository.model";
 import {ApiConstants} from "@/constants/api.constants";
 import {ISearchLabel} from "@/store/search.interface";
 import * as localForage from "localforage";
+import {AxiosError} from "axios";
 
 class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
 
@@ -12,7 +13,7 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
     totalItems = 0;
     isAtEnd = false;
     loading = false;
-    error = false;
+    error = '';
     page = 0;
     cache = localForage.createInstance({
         name: 'repositoryCache'
@@ -32,9 +33,9 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
     }
 
     async search(searchTerm: string, page = this.page) {
-        this.error = false;
-        this.loading = true;
         if (this.isAtEnd) return
+        this.error = '';
+        this.loading = true;
         if (!searchTerm) {
             runInAction(() => this.reset(false))
             return
@@ -46,6 +47,7 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                 const data: RepositoryModel.IRepository[] = JSON.parse(cachedReps);
                 this.data = [...this.data, ...data]
                 this.loading = false;
+                this.isAtEnd = this.data.length >= this.totalItems || data.length < 30;
                 this.page = this.page + 1;
                 data.forEach((repo) => {
                     this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
@@ -68,9 +70,8 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                 runInAction(() => {
                     this.data = [...this.data, ...repositories]
                     this.totalItems = total_count;
-                    this.isAtEnd = items.length > 30;
+                    this.isAtEnd = this.data.length >= total_count || items.length < 30;
                     this.page = this.page + 1;
-                    console.log('this.data', this.data)
                 });
                 // get forks and file types for each repository
                 items.forEach((repo) => {
@@ -80,7 +81,7 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                 this.cache.setItem<string>(cacheKey, JSON.stringify(repositories));
             })
 
-            .catch(() => runInAction(() => this.error = true))
+            .catch((e) => this.handleErrors(e))
             .finally(() => runInAction(() => this.loading = false));
     }
 
@@ -99,7 +100,7 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                     this.forksMap.set(`${git_url}`, forks);
                 });
             })
-            .catch(() => runInAction(() => this.error = true))
+            .catch((e) => this.handleErrors(e))
             .finally(() => runInAction(() => this.loading = false));
     }
 
@@ -120,8 +121,30 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                     this.fileTypeMap.set(`${git_url}`, files);
                 });
             })
-            .catch(() => runInAction(() => this.error = true))
+            .catch((e) => {
+                this.handleErrors(e);
+                this.handleRepoIsEmpty(e, git_url);
+            })
             .finally(() => runInAction(() => this.loading = false));
+    }
+
+    handleErrors(e: AxiosError<any>) {
+        switch (e.response?.status) {
+            case 403:
+                this.error = e.response?.data.message;
+                break;
+            case 404:
+                break;
+            default:
+                this.error = e.response?.data.message;
+        }
+    }
+
+    handleRepoIsEmpty(e: AxiosError<any>, git_url: string) {
+        if (e.response?.status === 404) {
+            this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify([]));
+            this.fileTypeMap.set(`${git_url}`, []);
+        }
     }
 
 
@@ -138,7 +161,7 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
         this.data = [];
         this.totalItems = 0;
         this.isAtEnd = false;
-        this.error = false;
+        this.error = '';
         this.page = 0;
     }
 
