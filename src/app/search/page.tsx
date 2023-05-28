@@ -60,7 +60,7 @@ const SearchForm: React.FC = observer(() => {
 
     return (
         <Container>
-            <Grid container spacing={6}>
+            <Grid container spacing={6} className="mb-10">
                 <Grid item xs={12}>
                     <div className="flex items-center justify-center mt-20">
                         <h1 className="text-6xl font-bold text-black">Find Github users and repositories</h1>
