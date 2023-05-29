@@ -1,0 +1,40 @@
+.ToggleButton {
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  transition-duration: 0.5s;
+  border-radius: 25px;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+.ToggleButton:hover {
+  background-color: #ccc;
+  color: white;
+}
+
+.ToggleButton.Mui-selected {
+  background-color: #000;
+  color: white;
+}
+
+.TextField {
+  border-radius: 25px;
+  width: 100%;
+  border: 2px solid #000;
+  background-color: white;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+
+  .MuiInputBase-input {
+    font-size: 20px;
+    color: black;
+  }
+
+  .MuiOutlinedInput-notchedOutline {
+    border: none;
+  }
+}

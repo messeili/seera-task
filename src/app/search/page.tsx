@@ -17,6 +17,7 @@ import {userStore} from "@/store/users";
 import {repositoryStore} from "@/store/repositories";
 import ErrorComponent from "@/components/error";
 import SkeletonResults from "@/components/skeletonResults";
+import './page.scss'
 
 const SearchForm: React.FC = observer(() => {
     const [searchType, setSearchType] = useState(SearchTypeConstants.users);
@@ -76,16 +77,16 @@ const SearchForm: React.FC = observer(() => {
                             onChange={handleSearchTypeChange}
                             aria-label="searchType"
                         >
-                            <ToggleButton value={SearchTypeConstants.users}>Users</ToggleButton>
-                            <ToggleButton value={SearchTypeConstants.repositories}>Repositories</ToggleButton>
+                            <ToggleButton className="ToggleButton" value={SearchTypeConstants.users}>Users</ToggleButton>
+                            <ToggleButton className="ToggleButton" value={SearchTypeConstants.repositories}>Repositories</ToggleButton>
                         </ToggleButtonGroup>
                         <TextField
+                            className="TextField"
                             value={searchQuery}
                             color="primary"
                             name="search"
                             focused
                             variant="outlined"
-                            className="w-full"
                             type="text"
                             onChange={handleInputChange}
                             placeholder={searchLabel}
