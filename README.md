@@ -1,8 +1,12 @@
 <p align="center">
-  <img src="https://camo.githubusercontent.com/8db8bcfe74635750bbcd1e7e38758b9b3c2f8b237986467a0cb19dc81bb77c99/68747470733a2f2f61726761616d706c75732e73332e616d617a6f6e6177732e636f6d2f31353961666436302d383636392d343134302d616139652d6665343637393166353135642e706e67" alt="Seera logo">
+  <img src="public/gifs/search-1.gif">
 </p>
 
-## Developer Challenge
+[Deployed version](https://seera-task.vercel.app/)
+
+[Detailed demo with steps](https://app.supademo.com/demo/hapaw3tYXqRMRrzlDiDmn)
+
+## Find GitHub users and repositories
 This is a simple Next.js app that let your search for GitHub users and repositories using the GitHub API, and display the results in a list.
 This app uses the following technologies:
 -  **Next.js 13 & React 18**
@@ -40,7 +44,41 @@ yarn test
 
 To view the project open `http://localhost:3000`
 
-[deployed version](https://seera-task.vercel.app/)
 
-[Detailed demo with steps](https://app.supademo.com/demo/hapaw3tYXqRMRrzlDiDmn)
+## Responsive design
+<p align="center">
+  <img src="public/gifs/search-2.gif">
+</p>
+
+## How Search enhanced to handle large data and caching
+- The search results are cached in the browser using localForge, which is an IndexedDB wrapper with a simple API for caching data.
+- The search results are paginated, and the pagination is handled by the GitHub API.
+- The search input is debounced to avoid making unnecessary requests to the GitHub API.
+- The search query is lowercased to avoid making unnecessary requests to the GitHub API.
+- We check the repo size and the number if forks to avoid making unnecessary requests to the GitHub API.
+- Only cache the properties that are needed to display the results, that helps to reduce the size of the cache.
+- stop calling the api when the user reaches the last page, also stop the infinite scrolling.
+
+
+## Unit tests and code coverage
+- Test Case Count: more than 14 test cases
+- Test Success Rate: 100% success rate
+- Test Execution Time: 5.001 s
+- Test Failure Rate: 0% failure rate
+- Test Maintenance Effort: Utilizing the data-testid provided by react testing library will prevent the tests from breaking when the UI changes
+
+
+## Future improvements
+- Add more unit tests
+- Allow offline search by utilizing the cache data in the IndexedDB
+- implement virtual scrolling to handle large data with the help of [TanStack/react-virtualized](https://tanstack.com/virtual/v3/docs/guide/introduction)
+- implement TTL for the cache data to avoid caching outdated data for a long time
+- implement a cache invalidation strategy to avoid caching outdated data
+- implement infinite scrolling to load more data when the user reaches the end of the page with the help of [TanStack/react-infinite](https://tanstack.com/virtual/v3/docs/examples/react/infinite-scroll)
+
+
+
+
+
+
 
