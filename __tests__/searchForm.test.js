@@ -3,6 +3,7 @@ import {render, fireEvent, screen, waitFor} from '@testing-library/react';
 import SearchForm from "../src/app/search/page";
 import {userStore} from "../src/store/users";
 import '@testing-library/jest-dom';
+import {data} from "autoprefixer";
 
 jest.mock('localforage', () => {
     const mockLocalForage = {
@@ -82,5 +83,22 @@ describe('SearchForm', () => {
 
         // Assert
         expect(userStore.reset).toBeCalled()
+    });
+
+    test('should have no items in the result component if the data is empty', async () => {
+        // Arrange
+        render(<SearchForm/>);
+
+        // Act
+        const searchInput = screen.getByTestId('search-input');
+        fireEvent.input(searchInput, {target: {value: 'test2'}});
+        const userResults = screen.queryAllByTestId('user-result');
+        const actual = userResults.length;
+
+        // Assert
+        await waitFor(() => {
+            expect(userStore.search).toHaveBeenCalledWith('test2');
+            expect(actual).toEqual(0);
+        }, {timeout: 1000});
     });
 });

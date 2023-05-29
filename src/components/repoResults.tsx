@@ -16,6 +16,7 @@ const RepoResults: React.FC<RepoResultsProps> = observer(({children}: { children
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-3 md:gap-4 lg:gap-8">
                 {!repositoryStore.error && repositoryStore.data.map((repo: RepositoryModel.IRepository, index) =>
                     <RepositoryCard
+                        data-testid="repo-result"
                         key={`${repo.id}-${index}`}
                         name={repo.name}
                         language={repo.language}
