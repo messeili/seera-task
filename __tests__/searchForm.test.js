@@ -3,7 +3,6 @@ import {render, fireEvent, screen, waitFor} from '@testing-library/react';
 import SearchForm from "../src/app/search/page";
 import {userStore} from "../src/store/users";
 import '@testing-library/jest-dom';
-import {data} from "autoprefixer";
 
 jest.mock('localforage', () => {
     const mockLocalForage = {
