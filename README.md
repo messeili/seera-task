@@ -7,8 +7,7 @@
 [Detailed demo with steps](https://app.supademo.com/demo/hapaw3tYXqRMRrzlDiDmn)
 
 ## Find GitHub users and repositories
-This is a simple Next.js app that let your search for GitHub users and repositories using the GitHub API, and display the results in a list.
-This app uses the following technologies:
+The app utilizes the GitHub API to enable searching for GitHub users and repositories, presenting the results in a list. It is built on Next.js and incorporates the following technologies:
 -  **Next.js 13 & React 18**
 -  **Tailwind CSS 3** - A utility-first CSS framework
 -  **ESLint** — Pluggable JavaScript linter
