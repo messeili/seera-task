@@ -41,6 +41,7 @@ const SearchForm: React.FC = observer(() => {
     useInfiniteScroll(handleScrollEnd);
 
     const handleSearchTypeChange = (event: React.MouseEvent<HTMLElement>, value: string) => {
+        if(value === null) return;
         isInitialSearchState.current = true;
         setSearchType(value);
         setSearchQuery('');
