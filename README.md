@@ -38,5 +38,9 @@ yarn test
 ```
 
 
-To view the project open `http://localhost:3000`.
+To view the project open `http://localhost:3000`
+
+[deployed version](https://seera-task.vercel.app/)
+
+[Detailed demo with steps](https://app.supademo.com/demo/hapaw3tYXqRMRrzlDiDmn)
 
