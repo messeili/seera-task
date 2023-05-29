@@ -66,7 +66,7 @@ const SearchForm: React.FC = observer(() => {
             <Grid container spacing={6} className="mb-10">
                 <Grid item xs={12}>
                     <div className="flex items-center justify-center mt-20">
-                        <h1 className="text-6xl font-bold text-black">Find Github users and repositories</h1>
+                        <h1 data-testid="search-title" className="text-6xl font-bold text-black">Find Github users and repositories</h1>
                     </div>
                 </Grid>
                 <Grid item xs={12}>
@@ -79,10 +79,11 @@ const SearchForm: React.FC = observer(() => {
                             aria-label="searchType"
                             className="ToggleButtonGroup"
                         >
-                            <ToggleButton className="ToggleButton" value={SearchTypeConstants.users}>Users</ToggleButton>
-                            <ToggleButton className="ToggleButton" value={SearchTypeConstants.repositories}>Repositories</ToggleButton>
+                            <ToggleButton data-testid="user-button" className="ToggleButton" value={SearchTypeConstants.users}>Users</ToggleButton>
+                            <ToggleButton data-testid="repo-button" className="ToggleButton" value={SearchTypeConstants.repositories}>Repositories</ToggleButton>
                         </ToggleButtonGroup>
                         <TextField
+                            inputProps={{ "data-testid": "search-input" }}
                             className="TextField"
                             value={searchQuery}
                             color="primary"
