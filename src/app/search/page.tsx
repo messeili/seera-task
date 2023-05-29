@@ -47,7 +47,7 @@ const SearchForm: React.FC = observer(() => {
     };
 
     const handleSearchQueryChange = useCallback(customDebounce((value: string) => {
-        getStore().search(value);
+        getStore().search(value.toLowerCase());
     }, 500), [searchType]);
 
 
