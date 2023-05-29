@@ -76,6 +76,7 @@ const SearchForm: React.FC = observer(() => {
                             exclusive
                             onChange={handleSearchTypeChange}
                             aria-label="searchType"
+                            className="ToggleButtonGroup"
                         >
                             <ToggleButton className="ToggleButton" value={SearchTypeConstants.users}>Users</ToggleButton>
                             <ToggleButton className="ToggleButton" value={SearchTypeConstants.repositories}>Repositories</ToggleButton>
