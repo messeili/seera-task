@@ -50,8 +50,8 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                 this.isAtEnd = this.data.length >= this.totalItems || data.length < 30;
                 this.page = this.page + 1;
                 data.forEach((repo) => {
-                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
-                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
+                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url, repo.forks_count);
+                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url, repo.size);
                 });
             });
             return;
@@ -75,8 +75,8 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
                 });
                 // get forks and file types for each repository
                 items.forEach((repo) => {
-                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url);
-                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url);
+                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url, repo.forks_count);
+                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url, repo.size);
                 });
                 this.cache.setItem<string>(cacheKey, JSON.stringify(repositories));
             })
@@ -85,7 +85,11 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
             .finally(() => runInAction(() => this.loading = false));
     }
 
-    async getRepositoryForks(owner: string, repoName: string, git_url: string) {
+    async getRepositoryForks(owner: string, repoName: string, git_url: string, forks_count: number) {
+        // check if the repo has any forks before making the request
+        if (forks_count === 0) {
+            await this.forksCache.setItem<string>(`${git_url}`, JSON.stringify([]));
+        }
         const cachedData = await this.forksCache.getItem<string>(`${git_url}`);
         if (cachedData) {
             runInAction(() => this.forksMap.set(`${git_url}`, JSON.parse(cachedData)));
@@ -104,7 +108,11 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
             .finally(() => runInAction(() => this.loading = false));
     }
 
-    async getRepositoryFileType(owner: string, repoName: string, git_url: string) {
+    async getRepositoryFileType(owner: string, repoName: string, git_url: string, repoSize: number) {
+        // check if the repo has any files before making the request
+        if (repoSize === 0) {
+            await this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify([]))
+        }
         const cachedData = await this.fileTypeCache.getItem<string>(`${git_url}`);
         if (cachedData) {
             runInAction(() => this.fileTypeMap.set(`${git_url}`, JSON.parse(cachedData)));
