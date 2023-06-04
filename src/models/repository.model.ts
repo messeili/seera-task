@@ -214,7 +214,7 @@ export namespace RepositoryModel {
         url: string;
     }
 
-    export class Repository implements Pick<IRepository, 'name' | 'description' | 'language' | 'forks_count' | 'id' | 'size'> {
+    export interface IMinRepository {
         id: number;
         name: string;
         description: string;
@@ -223,8 +223,23 @@ export namespace RepositoryModel {
         git_url: string;
         owner: Pick<RepoOwner, | 'login'>;
         size: number;
+        fileTypes: string[];
+        forks: Fork[]
+    }
 
-        constructor(repo: IRepository) {
+    export class Repository implements IMinRepository {
+        id: number;
+        name: string;
+        description: string;
+        language: string;
+        forks_count: number;
+        git_url: string;
+        owner: Pick<RepoOwner, | 'login'>;
+        size: number;
+        fileTypes: string[];
+        forks: any[]
+
+        constructor(repo: IMinRepository) {
             this.id = repo.id;
             this.name = repo.name;
             this.description = repo.description;
@@ -233,6 +248,8 @@ export namespace RepositoryModel {
             this.git_url = repo.git_url;
             this.owner = {login: repo.owner.login};
             this.size = repo.size;
+            this.fileTypes = repo.fileTypes;
+            this.forks = repo.forks;
         }
     }
 

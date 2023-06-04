@@ -7,9 +7,9 @@ import {ISearchLabel} from "@/store/search.interface";
 import * as localForage from "localforage";
 import {AxiosError} from "axios";
 
-class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
+class RepositoryStore implements ISearchLabel<RepositoryModel.Repository[]> {
 
-    data: RepositoryModel.IRepository[] = [];
+    data: RepositoryModel.Repository[] = [];
     totalItems = 0;
     isAtEnd = false;
     loading = false;
@@ -44,15 +44,12 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
         const cachedReps = await this.cache.getItem<string>(cacheKey);
         if (cachedReps) {
             runInAction(() => {
-                const data: RepositoryModel.IRepository[] = JSON.parse(cachedReps);
+                const data: RepositoryModel.Repository[] = JSON.parse(cachedReps);
                 this.data = [...this.data, ...data]
                 this.loading = false;
-                this.isAtEnd = this.data.length >= this.totalItems || data.length < 30;
-                this.page = this.page + 1;
-                data.forEach((repo) => {
-                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url, repo.forks_count);
-                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url, repo.size);
-                });
+                this.isAtEnd = this.data.length >= this.totalItems && data.length < 30;
+                console.log(this.data.length, this.totalItems, data.length, this.isAtEnd)
+                this.page = this.page + 1
             });
             return;
         }
@@ -63,77 +60,62 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
             }
         })
             .then(response => response.data)
-            .then(({items, total_count}) => {
-                // create new repository models to minimize the data we store in cache
-                const repositories = items.map((item) =>
-                    new RepositoryModel.Repository(item)) as RepositoryModel.IRepository[];
+            .then( async ({items, total_count}) => {
+                // get forks and file types for each repository
+                const promises = items.map(async (repo) => {
+                    const [forks, fileTypes] = await Promise.all([
+                        this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url, repo.forks_count),
+                        this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url, repo.size)
+                    ]);
+
+                    return new RepositoryModel.Repository( {
+                        ...repo,
+                        forks,
+                        fileTypes
+                    } )
+                });
+                const repositories = await Promise.all(promises);
                 runInAction(() => {
                     this.data = [...this.data, ...repositories]
                     this.totalItems = total_count;
                     this.isAtEnd = this.data.length >= total_count || items.length < 30;
                     this.page = this.page + 1;
                 });
-                // get forks and file types for each repository
-                items.forEach((repo) => {
-                    this.getRepositoryForks(repo.owner.login, repo.name, repo.git_url, repo.forks_count);
-                    this.getRepositoryFileType(repo.owner.login, repo.name, repo.git_url, repo.size);
-                });
-                this.cache.setItem<string>(cacheKey, JSON.stringify(repositories));
+                await this.cache.setItem<string>(cacheKey, JSON.stringify(repositories));
             })
 
             .catch((e) => this.handleErrors(e))
             .finally(() => runInAction(() => this.loading = false));
     }
 
-    async getRepositoryForks(owner: string, repoName: string, git_url: string, forks_count: number) {
+    async getRepositoryForks(owner: string, repoName: string, git_url: string, forks_count: number): Promise<any> {
         // check if the repo has any forks before making the request
         if (forks_count === 0) {
-            await this.forksCache.setItem<string>(`${git_url}`, JSON.stringify([]));
+            return Promise.resolve([]);
         }
-        const cachedData = await this.forksCache.getItem<string>(`${git_url}`);
-        if (cachedData) {
-            runInAction(() => this.forksMap.set(`${git_url}`, JSON.parse(cachedData)));
-            return;
-        }
-        axiosInstance.get<Array<RepositoryModel.Fork>>(ApiConstants.forks(owner, repoName))
+        return axiosInstance.get<Array<RepositoryModel.Fork>>(ApiConstants.forks(owner, repoName))
             .then(response => response.data)
             .then(response => response.map(fork => ({login: fork.owner.login, avatar_url: fork.owner.avatar_url})))
-            .then(forks => {
-                runInAction(() => {
-                    this.forksCache.setItem<string>(`${git_url}`, JSON.stringify(forks));
-                    this.forksMap.set(`${git_url}`, forks);
-                });
+            .catch((e) => {
+                this.handleErrors(e)
+                return this.handleRepoIsEmpty(e);
             })
-            .catch((e) => this.handleErrors(e))
-            .finally(() => runInAction(() => this.loading = false));
     }
 
     async getRepositoryFileType(owner: string, repoName: string, git_url: string, repoSize: number) {
         // check if the repo has any files before making the request
         if (repoSize === 0) {
-            await this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify([]))
+            return Promise.resolve([]);
         }
-        const cachedData = await this.fileTypeCache.getItem<string>(`${git_url}`);
-        if (cachedData) {
-            runInAction(() => this.fileTypeMap.set(`${git_url}`, JSON.parse(cachedData)));
-            return;
-        }
-        axiosInstance.get<Array<RepositoryModel.RepoFile>>(ApiConstants.fileType(owner, repoName))
+        return axiosInstance.get<Array<RepositoryModel.RepoFile>>(ApiConstants.fileType(owner, repoName))
             .then(response => response.data)
             .then(response => response.filter(file => file.type === 'file'))
             .then(files => files.map(file => this.getFileType(file.name)))
             .then(files => [...new Set(files.filter(Boolean))])
-            .then(files => {
-                runInAction(() => {
-                    this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify(files));
-                    this.fileTypeMap.set(`${git_url}`, files);
-                });
-            })
             .catch((e) => {
                 this.handleErrors(e);
-                this.handleRepoIsEmpty(e, git_url);
+                return this.handleRepoIsEmpty(e);
             })
-            .finally(() => runInAction(() => this.loading = false));
     }
 
     handleErrors(e: AxiosError<any>) {
@@ -148,11 +130,8 @@ class RepositoryStore implements ISearchLabel<RepositoryModel.IRepository[]> {
         }
     }
 
-    handleRepoIsEmpty(e: AxiosError<any>, git_url: string) {
-        if (e.response?.status === 404) {
-            this.fileTypeCache.setItem<string>(`${git_url}`, JSON.stringify([]));
-            this.fileTypeMap.set(`${git_url}`, []);
-        }
+    handleRepoIsEmpty(e: AxiosError<any>): Promise<any> {
+        return Promise.resolve([]);
     }
 
 
