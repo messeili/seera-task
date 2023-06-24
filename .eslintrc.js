@@ -12,5 +12,13 @@ module.exports = {
   },
   rules: {
     'import/no-anonymous-default-export': 'off',
+    "@typescript-eslint/explicit-member-accessibility": "off",
+    "@typescript-eslint/dot-location": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/dot-notation": "error",
+    "@typescript-eslint/member-ordering": "off",
+    "@typescript-eslint/explicit-function-return-type": "off"
   },
 }
